@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=294,initial-scale=1,maximum-scale=1">
+<title>PRIME Live Chat</title>
+<style>
+:root{--blue:#168cff;--cyan:#54d8ff;--white:#f4f8ff}
+*{box-sizing:border-box}
+html,body{margin:0;width:294px;height:733px;background:transparent;overflow:hidden;color:var(--white);font-family:Arial,"Segoe UI",sans-serif}
+.app{width:294px;height:733px;padding:12px 10px;display:flex;flex-direction:column;gap:10px;background:transparent}
+.head{height:58px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(84,216,255,.42);border-radius:14px;background:linear-gradient(115deg,rgba(13,40,81,.92),rgba(5,14,31,.82));box-shadow:0 8px 28px #0006,0 0 18px #168cff22;backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px}.mark{width:30px;height:30px;border-radius:10px;background:linear-gradient(145deg,#42c8ff,#146aff);display:grid;place-items:center;box-shadow:0 0 16px #168cff70}.mark:after{content:"";width:7px;height:7px;border-radius:50%;background:white;box-shadow:0 0 10px white}.title{font-size:13px;font-weight:900;letter-spacing:1.6px}.subtitle{font-size:9px;color:#aac7e9;margin-top:3px}.live{display:flex;align-items:center;gap:6px;color:#9be9ff;font-weight:800;font-size:8px;letter-spacing:.8px}.dot{width:7px;height:7px;border-radius:50%;background:#38c5ff;box-shadow:0 0 9px #38c5ff;animation:pulse 1.5s infinite}
+.feed{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:7px;overflow:hidden;padding:2px 0}.msg{padding:9px 10px 10px;background:linear-gradient(105deg,rgba(9,23,44,.88),rgba(11,35,64,.76));border:1px solid rgba(89,171,255,.2);border-right:3px solid var(--blue);border-radius:11px;box-shadow:0 4px 15px #0005;backdrop-filter:blur(8px);animation:enter .32s ease both;overflow-wrap:anywhere}.line{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px}.name{font-size:12px;font-weight:800;color:#dcecff}.badge{font-size:7px;line-height:1;padding:4px 5px;border-radius:5px;font-weight:900;letter-spacing:.35px}.mod{background:#1768ba;color:#e8f6ff;border:1px solid #51bdff}.og{background:#142a47;color:#bdeaff;border:1px solid #397db8}.vip{background:linear-gradient(110deg,#174ea5,#168cff);color:white;border:1px solid #72c9ff}.message{font-size:12px;line-height:1.5;color:#f2f7ff;white-space:pre-wrap;word-break:break-word}.empty{align-self:center;color:#9bb5d3;font-size:11px;text-align:center;padding:14px 8px;border:1px dashed rgba(89,171,255,.25);border-radius:12px;background:rgba(9,23,44,.45)}
+.foot{height:18px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 4px;color:#7794b7;font-size:8px;letter-spacing:.45px}.disconnect{color:#ffc86a}
+@keyframes enter{from{opacity:0;transform:translateX(9px)}to{opacity:1;transform:translateX(0)}}@keyframes pulse{50%{opacity:.4;box-shadow:0 0 2px #38c5ff}}
+</style></head>
+<body><main class="app"><header class="head"><div class="brand"><div class="mark"></div><div><div class="title">PRIME CHAT</div><div class="subtitle">مجتمع برايم</div></div></div><div class="live"><span class="dot"></span><span id="liveText">LIVE CHAT</span></div></header><section class="feed" id="feed"><div class="empty" id="empty">بانتظار رسائل الشات…</div></section><footer class="foot"><span class="status" id="status">يرتبط بكيك</span><span>PRIME</span></footer></main>
+<script>
+const feed=document.getElementById('feed'), empty=document.getElementById('empty'), statusEl=document.getElementById('status');
+function addMessage(data){if(empty)empty.remove();const card=document.createElement('article');card.className='msg';const line=document.createElement('div');line.className='line';const name=document.createElement('span');name.className='name';name.textContent=data.username||'مشاهد';if(data.color)name.style.color=data.color;line.append(name);for(const label of (data.badges||[])){const badge=document.createElement('span');badge.className='badge '+label.toLowerCase();badge.textContent=label;line.append(badge)}const message=document.createElement('div');message.className='message';message.textContent=data.content||'';card.append(line,message);feed.append(card);while(feed.querySelectorAll('.msg').length>9)feed.querySelector('.msg').remove()}
+const stream=new EventSource('/events');
+stream.addEventListener('message',event=>{try{addMessage(JSON.parse(event.data))}catch{}});
+stream.addEventListener('status',event=>{try{const s=JSON.parse(event.data).state||'';statusEl.textContent=s;if(s!=='متصل بكيك')statusEl.classList.add('disconnect');else statusEl.classList.remove('disconnect')}catch{}});
+stream.onerror=()=>{statusEl.textContent='إعادة الاتصال…';statusEl.classList.add('disconnect')};
+</script></body></html>

@@ -1,0 +1,9 @@
+{
+  "name": "prime-kick-chat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PRIME blue live Kick chat overlay for OBS",
+  "main": "server.js",
+  "scripts": {"start": "node server.js", "test": "node --test"},
+  "engines": {"node": ">=20"}
+}
