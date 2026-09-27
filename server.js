@@ -95,12 +95,16 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { ok: true, connected: connectionState === 'متصل بكيك', state: connectionState, overlay: '294x733' });
     }
     if (req.method === 'GET' && url.pathname === '/') {
-      const html = `<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PRIME Chat setup</title><style>body{background:#07101f;color:#eaf5ff;font:16px Arial;max-width:700px;margin:50px auto;padding:24px}a{color:#69caff}.card{background:#101e33;padding:24px;border:1px solid #246aa3;border-radius:16px}code{color:#81d7ff}</style><div class="card"><h1>PRIME Blue Chat</h1><p>بعد إعداد التطبيق والاستضافة، اربط حساب كيك من هذا الرابط:</p><p><a href="/auth/kick">ربط حساب كيك</a></p><p>ثم أضف هذا الرابط إلى OBS كـ Browser Source:</p><p><code>${base}/overlay</code></p><p>مقاس المصدر: <b>294 × 733</b>.</p><p>الحالة: <b>${connectionState}</b></p></div></html>`;
+      const html = `<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PRIME Chat setup</title><style>body{background:#07101f;color:#eaf5ff;font:16px Arial;max-width:700px;margin:50px auto;padding:24px}a{color:#69caff}.card{background:#101e33;padding:24px;border:1px solid #246aa3;border-radius:16px}code{color:#81d7ff}</style><div class="card"><h1>PRIME Blue Chat</h1><p>اربط حساب كيك من هنا:</p><p><a href="/auth/kick">ربط حساب كيك</a></p><p>شات كام فل سكرين في OBS:</p><p><a href="/chatcam"><code>${base}/chatcam</code></a></p><p>المقاس: <b>1920 × 1080</b>. أضف الكاميرا أولًا في OBS، ثم أضف هذا الرابط كـ Browser Source فوقها.</p><p>الشات العمودي القديم:</p><p><code>${base}/overlay</code> (294 × 733)</p><p>الحالة: <b>${connectionState}</b></p></div></html>`;
       return send(res, 200, html, 'text/html; charset=utf-8');
     }
     if (req.method === 'GET' && url.pathname === '/overlay') {
       const html = page('index.html');
       return html ? send(res, 200, html, 'text/html; charset=utf-8') : send(res, 404, 'Overlay not found');
+    }
+    if (req.method === 'GET' && url.pathname === '/chatcam') {
+      const html = page('chatcam.html');
+      return html ? send(res, 200, html, 'text/html; charset=utf-8') : send(res, 404, 'ChatCam overlay not found');
     }
     if (req.method === 'GET' && url.pathname === '/events') {
       res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache, no-transform', connection: 'keep-alive', 'x-accel-buffering': 'no' });
