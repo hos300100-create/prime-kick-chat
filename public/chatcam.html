@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1">
+<title>PRIME — Just Chatting</title>
+<style>
+:root{--blue:#168cff;--cyan:#57ddff;--white:#f5f8ff}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;color:var(--white);font-family:Arial,"Segoe UI",sans-serif}
+.scene{position:relative;width:100vw;height:100vh;overflow:hidden;background:transparent}
+.title{position:absolute;left:4.2vw;top:4.2vh;direction:ltr;text-align:left;color:#eaf9ff;font-size:clamp(22px,2.3vw,44px);font-weight:900;letter-spacing:.13em;text-shadow:0 0 8px #33bcff,0 0 22px #087bff;line-height:1.1}
+.title::after{content:"";display:block;width:70%;height:2px;margin-top:9px;background:linear-gradient(90deg,#28baff,transparent);box-shadow:0 0 10px #168cff}
+.prime{display:block;margin-top:7px;color:#79dfff;font-size:.34em;letter-spacing:.55em;text-shadow:none}
+.chat{position:absolute;right:2.5vw;top:5.2vh;bottom:4.8vh;width:min(590px,35vw);display:flex;flex-direction:column;min-width:310px}
+.chat::before{content:"";position:absolute;inset:-26px -2vw -18px -1vw;z-index:-1;background:linear-gradient(270deg,rgba(1,5,13,.60),rgba(1,7,18,.28) 62%,transparent);mask-image:linear-gradient(180deg,transparent,#000 8%,#000 94%,transparent)}
+.chat-head{height:36px;flex:none;display:flex;align-items:center;justify-content:flex-start;gap:9px;margin:0 3px 12px;color:#ecf8ff;font-size:clamp(15px,1.1vw,20px);font-weight:800;letter-spacing:.06em;text-shadow:0 0 9px #168cff}
+.live-dot{width:8px;height:8px;flex:none;border-radius:50%;background:#55d9ff;box-shadow:0 0 10px #35bdff;animation:pulse 1.4s infinite}
+.feed{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:clamp(8px,1.1vh,15px);overflow:hidden;padding:2px 3px 4px}
+.msg{display:grid;grid-template-columns:minmax(92px,38%) minmax(0,1fr);gap:12px;align-items:baseline;direction:ltr;animation:enter .3s ease both;filter:drop-shadow(0 1px 4px #000)}
+.identity{display:flex;justify-content:flex-end;align-items:center;gap:7px;direction:rtl;min-width:0}
+.name{font-size:clamp(15px,1.15vw,21px);line-height:1.25;font-weight:800;color:var(--cyan);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{flex:none;padding:3px 6px;border-radius:6px;font-size:clamp(9px,.63vw,12px);line-height:1;font-weight:900;letter-spacing:.03em}
+.mod{background:#0878d2;color:#fff;border:1px solid #68d6ff;box-shadow:0 0 9px #168cff88}
+.og{background:#d9e9f7;color:#21364c;border:1px solid #fff}
+.vip{background:#ffca45;color:#231600;border:1px solid #ffe9a3}
+.message{min-width:0;color:#fff;font-size:clamp(14px,1.02vw,19px);line-height:1.35;text-align:right;direction:rtl;overflow-wrap:anywhere}
+.empty{margin:auto;color:#d6e8fb;font-size:15px;text-align:right;opacity:.72;text-shadow:0 1px 5px #000}
+@keyframes enter{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{50%{opacity:.45;box-shadow:0 0 3px #35bdff}}
+@media(max-width:800px){.chat{right:2vw;width:43vw;min-width:0}.msg{grid-template-columns:minmax(80px,40%) minmax(0,1fr);gap:8px}.title{left:3vw;top:3vh}}
+</style>
+</head>
+<body>
+<main class="scene">
+  <div class="title">JUST CHATTING<span class="prime">PRIME</span></div>
+  <section class="chat" aria-label="Kick live chat">
+    <header class="chat-head"><span class="live-dot"></span><span>LIVE CHAT</span></header>
+    <div class="feed" id="feed"><div class="empty" id="empty">بانتظار رسائل الشات…</div></div>
+  </section>
+</main>
+<script>
+const feed=document.getElementById('feed');
+let empty=document.getElementById('empty');
+const badgeClasses={MOD:'mod',OG:'og',VIP:'vip'};
+function addMessage(data){
+  if(empty){empty.remove();empty=null}
+  const row=document.createElement('article');row.className='msg';
+  const identity=document.createElement('div');identity.className='identity';
+  const name=document.createElement('span');name.className='name';name.textContent=data.username||'مشاهد';
+  if(/^#[0-9a-f]{6}$/i.test(data.color||''))name.style.color=data.color;
+  identity.append(name);
+  for(const raw of (Array.isArray(data.badges)?data.badges:[])){
+    const label=String(raw).toUpperCase();if(!badgeClasses[label])continue;
+    const badge=document.createElement('span');badge.className='badge '+badgeClasses[label];badge.textContent=label;identity.append(badge);
+  }
+  const message=document.createElement('div');message.className='message';message.textContent=data.content||'';
+  row.append(identity,message);feed.append(row);
+  while(feed.querySelectorAll('.msg').length>11)feed.querySelector('.msg').remove();
+  setTimeout(()=>{row.style.transition='opacity .6s ease';row.style.opacity='0';setTimeout(()=>row.remove(),650)},45000);
+}
+const stream=new EventSource('/events');
+stream.addEventListener('message',event=>{try{addMessage(JSON.parse(event.data))}catch{}});
+</script>
+</body>
+</html>
